@@ -1,0 +1,24 @@
+openapi: 3.0.0
+# redocly preview-docs spec.yaml --port 1234
+# redocly bundle spec.yaml --output bundled.yaml
+info:
+  title: TaskManager API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер
+security:
+  - CookieAuth: []
+
+tags:
+  - name: Auth
+    description: Всё, что связано с пользователями и безопасностью
+  - name: Tasks
+    description: Управление задачами
+  - name: Assignment
+    description: Вся бизнес-логика назначения и распределения
+
+paths:
+  /tasks:
+    $ref: './paths/tasks.yaml#/paths/~1tasks'
+    

@@ -1,0 +1,57 @@
+taskmaster-ms/
+├── api/                           # API контракты - НАЧАТЬ ЗДЕСЬ
+│   ├── openapi/
+│   │   ├── spec.yaml             # Основная спецификация
+│   │   ├── auth-api.yaml         # Auth endpoints
+│   │   ├── task-api.yaml         # Task endpoints  
+│   │   └── assignment-api.yaml   # Assignment endpoints
+│   └── proto/                    # gRPC protobuf
+│       ├── auth.proto
+│       ├── task.proto
+│       └── assignment.proto
+│
+├── services/                      # Микросервисы
+│   ├── auth-service/
+│   │   ├── cmd/
+│   │   │   └── main.go
+│   │   ├── internal/
+│   │   │   ├── handler/          # HTTP/gRPC handlers
+│   │   │   ├── service/          # Бизнес-логика
+│   │   │   ├── repository/       # PostgreSQL/Redis
+│   │   │   └── models/           # Структуры данных
+│   │   ├── Dockerfile
+│   │   └── go.mod
+│   │
+│   ├── task-service/             # Аналогичная структура
+│   └── assignment-service/       # Аналогичная структура
+│
+├── gateway/                       # API Gateway
+│   ├── cmd/
+│   ├── internal/
+│   ├── config/
+│   │   └── routes.yaml          # Маршрутизация
+│   └── Dockerfile
+│
+├── deployments/                   # Инфраструктура
+│   ├── docker-compose.yml
+│   ├── postgres/
+│   │   ├── auth/
+│   │   │   └── migrations/
+│   │   └── tasks/
+│   │       └── migrations/
+│   └── redis/
+│       └── redis.conf
+│
+├── client-sdk/                   # Автогенерируемые SDK
+│   ├── typescript/
+│   ├── go/
+│   └── python/
+│
+├── docs/                         # Документация
+│   ├── api-reference.md
+│   └── architecture.md
+│
+└── scripts/                      # Скрипты
+    ├── generate-openapi.sh      # Генерация из YAML
+    ├── generate-grpc.sh         # Генерация из .proto
+    └── validate-api.sh          # Валидация спецификации
