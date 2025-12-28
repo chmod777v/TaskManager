@@ -9,7 +9,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TaskDetail'
+              $ref: '../schemas/tasks.yaml#/schemas/TaskDetail'
+
       responses:
         '200':
           description: Успешный ответ с id созданной задачи
@@ -18,7 +19,7 @@ paths:
                 schema:
                   type: object
                   properties:
-                    id:
+                    Id:
                       type: integer
                       example: 14
   /tasks/{id}:
@@ -27,70 +28,21 @@ paths:
       - Tasks
       summary: Получение деталей задачи по id
       parameters: 
-        - $ref: '#/components/parameters/TaskIdRequest'
+        - $ref: '../schemas/tasks.yaml#/parameters/TaskIdRequest'
       responses:
         '200':
           description: Успешный ответ с информацией о задаче
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskDetail'
+                $ref: '../schemas/tasks.yaml#/schemas/TaskDetail'
     delete:
       tags:
         - Tasks
       summary: Удаление задачи по id
       parameters: 
-        - $ref: '#/components/parameters/TaskIdRequest'
+        - $ref: '../schemas/tasks.yaml#/parameters/TaskIdRequest'
       responses:
         '200':
           description: Успешный ответ с информацией о задаче
   #put!!!!!!!!!!!
-
-components:
-  securitySchemes:
-    CookieAuth:
-      type: apiKey
-      in: cookie
-      name: session_token
-      description: Токен аутентификации в cookie. Получать токен через POST /auth/login!
-  parameters:
-    TaskIdRequest: 
-      name: id
-      description: ID задачи
-      in: path
-      required: true  
-      schema:
-        type: integer
-        example: 4
-        minimum: 1
-  schemas:
-    AuthUser:
-      type: object
-      properties:
-        Login:
-          type: string
-          example: Konstantin
-        Key:
-          type: string
-          example: nx9182!mx198MgfKL0S=AsL3
-    TaskDetail:
-      type: object
-      properties:
-        Id:
-          description: id задачи
-          type: integer
-          example: 3
-        Header:
-          description: Краткое описание 
-          type: string
-          example: Сервис для авторизации
-        Task:
-          description: Подробное описание задачи (ТЗ)
-          type: string
-          example: Разработать сервис для авторизации. Срок 3 недели. Использовать postgres...
-        Developers:
-          description: Список с id разработчиков назначенных на задание
-          type: array
-          items:
-            type: integer
-          example: [1,23,5]

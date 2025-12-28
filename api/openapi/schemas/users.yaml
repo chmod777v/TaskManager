@@ -1,0 +1,21 @@
+schemas:
+  User:
+    type: object
+    properties:
+      Login:
+        type: string
+        example: Konstantin
+      Key:
+        type: string
+        example: nx9182!mx198MgfKL0S=AsL3
+
+parameters:
+  UserIdRequest: 
+    name: id
+    description: ID пользователя
+    in: path
+    required: true  
+    schema:
+      type: integer
+      example: 5
+      minimum: 1

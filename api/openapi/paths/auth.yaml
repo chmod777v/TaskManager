@@ -1,0 +1,66 @@
+paths:
+  /auth:
+    post:
+      tags:
+      - Auth
+      summary: Аутентификация по логину и ключу
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/users.yaml#/schemas/User'
+      responses:
+        '200':
+          description: Успешная аутентификация
+          headers:
+            Set-Cookie:
+              description: Сессионый токен
+              schema:
+                type: string
+                example: auth_token=abc123def456
+              
+  /users:
+    get:
+      tags:
+      - Auth
+      summary: Получение таблицы с пользователями (Id:Login)
+      responses:
+        '200':
+          description: Успешный ответ с таблицей
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                description: Таблица с пользователями Id:Login
+                example:
+                  1: "Ivan I."
+                  2: "Konstantin P."
+                  3: "Alexey B."
+    post:
+      tags:
+      - Auth
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/users.yaml#/schemas/User'
+      responses:
+        '200':
+          description: Успешно, возвращает Id созданного пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                    example: 3
+            
+
+  #/users/{id} GET DELETE

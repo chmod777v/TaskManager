@@ -21,4 +21,23 @@ tags:
 paths:
   /tasks:
     $ref: './paths/tasks.yaml#/paths/~1tasks'
+  /tasks/{id}:
+    $ref: './paths/tasks.yaml#/paths/~1tasks~1{id}'
     
+  /auth/login:
+     $ref: './paths/auth.yaml#/paths/~1auth'
+  /users:
+    $ref: './paths/auth.yaml#/paths/~1users'
+
+  /assign:
+    $ref: './paths/assignment.yaml#/paths/~1assign'
+  /assign/user/{id}:
+    $ref: './paths/assignment.yaml#/paths/~1assign~1user~1{id}'
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: Токен аутентификации в cookie. Получать токен через POST /auth/login!
