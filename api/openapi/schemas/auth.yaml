@@ -8,6 +8,16 @@ schemas:
       Key:
         type: string
         example: nx9182!mx198MgfKL0S=AsL3
+  
+  MapUser:
+    type: object
+    additionalProperties:
+      type: string
+    description: Таблица с пользователями Id:Login
+    example:
+      1: "Ivan I."
+      2: "Konstantin P."
+      3: "Alexey B."
 
 parameters:
   UserIdRequest: 

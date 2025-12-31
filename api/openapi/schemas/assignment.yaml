@@ -1,0 +1,31 @@
+schemas:
+  ListId:
+    description: Список с id
+    type: array
+    items:
+      type: integer
+    example: [1,2,12]
+  
+  MapId:
+    description: Таблица с пользователями и прикрепленной к ним задачами (Id задачи:Id пользователя/ей)
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: integer
+        minimum: 1
+    example:
+      1: [1,4,5]
+      3: [2]
+      4: [6]
+
+parameters:
+  UserIdRequest: 
+    name: id
+    description: ID пользователя
+    in: path
+    required: true  
+    schema:
+      type: integer
+      example: 5
+      minimum: 1

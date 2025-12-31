@@ -24,10 +24,12 @@ paths:
   /tasks/{id}:
     $ref: './paths/tasks.yaml#/paths/~1tasks~1{id}'
     
-  /auth/login:
+  /auth:
      $ref: './paths/auth.yaml#/paths/~1auth'
   /users:
     $ref: './paths/auth.yaml#/paths/~1users'
+  /users/{id}:
+    $ref: './paths/auth.yaml#/paths/~1users~1{id}'
 
   /assign:
     $ref: './paths/assignment.yaml#/paths/~1assign'

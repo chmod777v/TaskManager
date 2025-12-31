@@ -9,7 +9,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../schemas/tasks.yaml#/schemas/TaskDetail'
+              $ref: '../schemas/tasks.yaml#/schemas/TaskNew'
 
       responses:
         '200':
@@ -44,5 +44,20 @@ paths:
         - $ref: '../schemas/tasks.yaml#/parameters/TaskIdRequest'
       responses:
         '200':
-          description: Успешный ответ с информацией о задаче
-  #put!!!!!!!!!!!
+          description: Успешное удаление задачи
+
+    put:
+      tags:
+      - Tasks
+      summary: Обновить задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tasks.yaml#/schemas/TaskNew'
+
+      responses:
+        '200':
+          description: Успех
+

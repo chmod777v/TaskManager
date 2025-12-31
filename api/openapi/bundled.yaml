@@ -25,7 +25,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TaskDetail'
+              $ref: '#/components/schemas/TaskNew'
       responses:
         '200':
           description: Успешный ответ с id созданной задачи
@@ -59,8 +59,21 @@ paths:
         - $ref: '#/components/parameters/TaskIdRequest'
       responses:
         '200':
-          description: Успешный ответ с информацией о задаче
-  /auth/login:
+          description: Успешное удаление задачи
+    put:
+      tags:
+        - Tasks
+      summary: Обновить задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskNew'
+      responses:
+        '200':
+          description: Успех
+  /auth:
     post:
       tags:
         - Auth
@@ -92,14 +105,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: string
-                description: Таблица с пользователями Id:Login
-                example:
-                  '1': Ivan I.
-                  '2': Konstantin P.
-                  '3': Alexey B.
+                $ref: '#/components/schemas/MapUser'
     post:
       tags:
         - Auth
@@ -121,6 +127,29 @@ paths:
                   Id:
                     type: integer
                     example: 3
+  /users/{id}:
+    get:
+      tags:
+        - Auth
+      summary: Получение деталей пользователя по id
+      parameters:
+        - $ref: '#/components/parameters/UserIdRequest'
+      responses:
+        '200':
+          description: Успешный ответ с информацией о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - Auth
+      summary: Пользователя по id
+      parameters:
+        - $ref: '#/components/parameters/UserIdRequest'
+      responses:
+        '200':
+          description: Успешное удаление пользователя
   /assign:
     post:
       tags:
@@ -132,22 +161,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties:
-                type: array
-                items:
-                  type: integer
-                  minimum: 1
-              description: Таблица с пользователями и прикрепленной к ним задачами (Id задачи:Id пользователя/ей)
-              example:
-                '1':
-                  - 1
-                  - 4
-                  - 5
-                '3':
-                  - 2
-                '4':
-                  - 6
+              $ref: '#/components/schemas/MapId'
       responses:
         '200':
           description: Успешное назначение
@@ -164,14 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                description: Список с id пользователей
-                type: array
-                items:
-                  type: integer
-                example:
-                  - 1
-                  - 2
-                  - 12
+                $ref: '#/components/schemas/ListId'
     delete:
       tags:
         - Assignment
@@ -182,15 +189,8 @@ paths:
         required: true
         content:
           application/json:
-            schema: null
-            description: Список с id задач
-            type: array
-            items:
-              type: integer
-            example:
-              - 1
-              - 2
-              - 12
+            schema:
+              $ref: '#/components/schemas/ListId'
       responses:
         '200':
           description: Успешное удаление
@@ -202,6 +202,17 @@ components:
       name: session_token
       description: Токен аутентификации в cookie. Получать токен через POST /auth/login!
   schemas:
+    TaskNew:
+      type: object
+      properties:
+        Header:
+          description: Краткое описание
+          type: string
+          example: Сервис для авторизации
+        Task:
+          description: Подробное описание задачи (ТЗ)
+          type: string
+          example: Разработать сервис для авторизации. Срок 3 недели. Использовать postgres...
     TaskDetail:
       type: object
       properties:
@@ -235,6 +246,41 @@ components:
         Key:
           type: string
           example: nx9182!mx198MgfKL0S=AsL3
+    MapUser:
+      type: object
+      additionalProperties:
+        type: string
+      description: Таблица с пользователями Id:Login
+      example:
+        '1': Ivan I.
+        '2': Konstantin P.
+        '3': Alexey B.
+    MapId:
+      description: Таблица с пользователями и прикрепленной к ним задачами (Id задачи:Id пользователя/ей)
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+      example:
+        '1':
+          - 1
+          - 4
+          - 5
+        '3':
+          - 2
+        '4':
+          - 6
+    ListId:
+      description: Список с id
+      type: array
+      items:
+        type: integer
+      example:
+        - 1
+        - 2
+        - 12
   parameters:
     TaskIdRequest:
       name: id

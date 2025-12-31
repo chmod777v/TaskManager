@@ -31,3 +31,16 @@ schemas:
         items:
           type: integer
         example: [1,23,5]
+
+  TaskNew:
+    type: object
+    properties:
+      Header:
+        description: Краткое описание 
+        type: string
+        example: Сервис для авторизации
+      Task:
+        description: Подробное описание задачи (ТЗ)
+        type: string
+        example: Разработать сервис для авторизации. Срок 3 недели. Использовать postgres...
+

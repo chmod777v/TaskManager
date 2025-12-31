@@ -55,3 +55,10 @@ taskmaster-ms/
     ├── generate-openapi.sh      # Генерация из YAML
     ├── generate-grpc.sh         # Генерация из .proto
     └── validate-api.sh          # Валидация спецификации
+
+
+Gateway (:8080)
+Auth Service (:8081, gRPC:50050) 
+Users Service (:8082, gRPC:50051)
+Tasks Service (:8083, gRPC:50052)
+Assignment Service (:8084, gRPC:50053)

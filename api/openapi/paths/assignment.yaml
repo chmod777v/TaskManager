@@ -10,17 +10,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties:
-                type: array
-                items:
-                  type: integer
-                  minimum: 1
-              description: Таблица с пользователями и прикрепленной к ним задачами (Id задачи:Id пользователя/ей)
-              example:
-                1: [1,4,5]
-                3: [2]
-                4: [6]
+              $ref: '../schemas/assignment.yaml#/schemas/MapId'
       responses:
         '200':
           description: Успешное назначение
@@ -32,35 +22,27 @@ paths:
       - Assignment
       summary: Задачи конкретного разработчика
       parameters: 
-        - $ref: '../schemas/users.yaml#/parameters/UserIdRequest'
+        - $ref: '../schemas/assignment.yaml#/parameters/UserIdRequest'
       responses:
         '200':
           description: Успешный ответ с списком задач
           content:
             application/json:
               schema:
-                description: Список с id пользователей
-                type: array
-                items:
-                  type: integer
-                example: [1,2,12]
+                $ref: '../schemas/assignment.yaml#/schemas/ListId'
 
     delete:
       tags:
         - Assignment
       summary: Удаление задачи разработчика по его id
       parameters: 
-        - $ref: '../schemas/users.yaml#/parameters/UserIdRequest'
+        - $ref: '../schemas/assignment.yaml#/parameters/UserIdRequest'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-            description: Список с id задач
-            type: array
-            items:
-              type: integer
-            example: [1,2,12]
+              $ref: '../schemas/assignment.yaml#/schemas/ListId'
       responses:
         '200':
           description: Успешное удаление
