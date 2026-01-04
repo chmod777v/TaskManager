@@ -9,7 +9,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../schemas/tasks.yaml#/schemas/TaskNew'
+              $ref: '../components/schemas.yaml#/TaskNew'
 
       responses:
         '200':
@@ -28,20 +28,20 @@ paths:
       - Tasks
       summary: Получение деталей задачи по id
       parameters: 
-        - $ref: '../schemas/tasks.yaml#/parameters/TaskIdRequest'
+        - $ref: '../components/parameters.yaml#/TaskIdRequest'
       responses:
         '200':
           description: Успешный ответ с информацией о задаче
           content:
             application/json:
               schema:
-                $ref: '../schemas/tasks.yaml#/schemas/TaskDetail'
+                $ref: '../components/schemas.yaml#/TaskDetail'
     delete:
       tags:
         - Tasks
       summary: Удаление задачи по id
       parameters: 
-        - $ref: '../schemas/tasks.yaml#/parameters/TaskIdRequest'
+        - $ref: '../components/parameters.yaml#/TaskIdRequest'
       responses:
         '200':
           description: Успешное удаление задачи
@@ -55,7 +55,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../schemas/tasks.yaml#/schemas/TaskNew'
+              $ref: '../components/schemas.yaml#/TaskNew'
 
       responses:
         '200':

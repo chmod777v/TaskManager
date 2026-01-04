@@ -9,7 +9,9 @@ security:
   - CookieAuth: []
 tags:
   - name: Auth
-    description: Всё, что связано с пользователями и безопасностью
+    description: Аутентификация и сессии
+  - name: Users
+    description: Управление пользователями
   - name: Tasks
     description: Управление задачами
   - name: Assignment
@@ -97,7 +99,7 @@ paths:
   /users:
     get:
       tags:
-        - Auth
+        - Users
       summary: Получение таблицы с пользователями (Id:Login)
       responses:
         '200':
@@ -108,7 +110,7 @@ paths:
                 $ref: '#/components/schemas/MapUser'
     post:
       tags:
-        - Auth
+        - Users
       summary: Создать пользователя
       requestBody:
         required: true
@@ -130,7 +132,7 @@ paths:
   /users/{id}:
     get:
       tags:
-        - Auth
+        - Users
       summary: Получение деталей пользователя по id
       parameters:
         - $ref: '#/components/parameters/UserIdRequest'
@@ -143,8 +145,8 @@ paths:
                 $ref: '#/components/schemas/User'
     delete:
       tags:
-        - Auth
-      summary: Пользователя по id
+        - Users
+      summary: Удаление пользователя по id
       parameters:
         - $ref: '#/components/parameters/UserIdRequest'
       responses:

@@ -10,7 +10,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../schemas/auth.yaml#/schemas/User'
+              $ref: '../components/schemas.yaml#/User'
       responses:
         '200':
           description: Успешная аутентификация
@@ -21,60 +21,3 @@ paths:
                 type: string
                 example: auth_token=abc123def456
               
-  /users:
-    get:
-      tags:
-      - Auth
-      summary: Получение таблицы с пользователями (Id:Login)
-      responses:
-        '200':
-          description: Успешный ответ с таблицей
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/auth.yaml#/schemas/MapUser'
-    post:
-      tags:
-      - Auth
-      summary: Создать пользователя
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/auth.yaml#/schemas/User'
-      responses:
-        '200':
-          description: Успешно, возвращает Id созданного пользователя
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  Id:
-                    type: integer
-                    example: 3
-            
-  /users/{id}:
-    get:
-      tags:
-      - Auth
-      summary: Получение деталей пользователя по id
-      parameters: 
-        - $ref: '../schemas/auth.yaml#/parameters/UserIdRequest'
-      responses:
-        '200':
-          description: Успешный ответ с информацией о пользователе
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/auth.yaml#/schemas/User'
-    delete:
-      tags:
-        - Auth
-      summary: Пользователя по id
-      parameters: 
-        - $ref: '../schemas/auth.yaml#/parameters/UserIdRequest'
-      responses:
-        '200':
-          description: Успешное удаление пользователя

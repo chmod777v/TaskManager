@@ -1,0 +1,58 @@
+paths:
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Получение таблицы с пользователями (Id:Login)
+      responses:
+        '200':
+          description: Успешный ответ с таблицей
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/MapUser'
+    post:
+      tags:
+      - Users
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/User'
+      responses:
+        '200':
+          description: Успешно, возвращает Id созданного пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                    example: 3
+            
+  /users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Получение деталей пользователя по id
+      parameters: 
+        - $ref: '../components/parameters.yaml#/UserIdRequest'
+      responses:
+        '200':
+          description: Успешный ответ с информацией о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/User'
+    delete:
+      tags:
+        - Users
+      summary: Удаление пользователя по id
+      parameters: 
+        - $ref: '../components/parameters.yaml#/UserIdRequest'
+      responses:
+        '200':
+          description: Успешное удаление пользователя

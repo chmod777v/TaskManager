@@ -1,0 +1,19 @@
+TaskIdRequest: 
+  name: id
+  description: ID задачи
+  in: path
+  required: true  
+  schema:
+    type: integer
+    example: 4
+    minimum: 1
+
+UserIdRequest: 
+  name: id
+  description: ID пользователя
+  in: path
+  required: true  
+  schema:
+    type: integer
+    example: 5
+    minimum: 1

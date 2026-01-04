@@ -12,7 +12,9 @@ security:
 
 tags:
   - name: Auth
-    description: Всё, что связано с пользователями и безопасностью
+    description: Аутентификация и сессии
+  - name: Users
+    description: Управление пользователями
   - name: Tasks
     description: Управление задачами
   - name: Assignment
@@ -26,10 +28,11 @@ paths:
     
   /auth:
      $ref: './paths/auth.yaml#/paths/~1auth'
+
   /users:
-    $ref: './paths/auth.yaml#/paths/~1users'
+    $ref: './paths/users.yaml#/paths/~1users'
   /users/{id}:
-    $ref: './paths/auth.yaml#/paths/~1users~1{id}'
+    $ref: './paths/users.yaml#/paths/~1users~1{id}'
 
   /assign:
     $ref: './paths/assignment.yaml#/paths/~1assign'

@@ -10,7 +10,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../schemas/assignment.yaml#/schemas/MapId'
+              $ref: '../components/schemas.yaml#/MapId'
       responses:
         '200':
           description: Успешное назначение
@@ -22,27 +22,27 @@ paths:
       - Assignment
       summary: Задачи конкретного разработчика
       parameters: 
-        - $ref: '../schemas/assignment.yaml#/parameters/UserIdRequest'
+        - $ref: '../components/parameters.yaml#/UserIdRequest'
       responses:
         '200':
           description: Успешный ответ с списком задач
           content:
             application/json:
               schema:
-                $ref: '../schemas/assignment.yaml#/schemas/ListId'
+                $ref: '../components/schemas.yaml#/ListId'
 
     delete:
       tags:
         - Assignment
       summary: Удаление задачи разработчика по его id
       parameters: 
-        - $ref: '../schemas/assignment.yaml#/parameters/UserIdRequest'
+        - $ref: '../components/parameters.yaml#/UserIdRequest'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '../schemas/assignment.yaml#/schemas/ListId'
+              $ref: '../components/schemas.yaml#/ListId'
       responses:
         '200':
           description: Успешное удаление

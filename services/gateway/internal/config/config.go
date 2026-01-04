@@ -3,23 +3,29 @@ package config
 import (
 	"flag"
 	"os"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Env      string   `yaml:"env" env-default:"development"`
+	Env      string   `yaml:"env" env-default:"local"`
 	Server   Server   `yaml:"server"`
-	Services Services `yaml:"clients"`
+	Services Services `yaml:"services"`
 }
 
 type Server struct {
-	GrpcPort int    `yaml:"grpc_port" env-default:"50050"`
-	Host     string `yaml:"host" env-default:"localhost"`
+	HttpPort    int           `yaml:"http_port" env-default:"8080"`
+	Host        string        `yaml:"host" env-default:"localhost"`
+	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"30s"`
 }
 
 type Services struct {
-	Users ServiceConfig `yaml:"users"`
+	Auth       ServiceConfig `yaml:"auth"`
+	Users      ServiceConfig `yaml:"users"`
+	Tasks      ServiceConfig `yaml:"tasks"`
+	Assignment ServiceConfig `yaml:"assignment"`
 }
 
 type ServiceConfig struct {

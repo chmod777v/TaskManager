@@ -1,10 +1,10 @@
 env: "local" #development production
 
-service:
-  http_port: 8080
+server:
   grpc_port: 50050
   host: "localhost"
 
-clients:
-  tasks_grpc: "localhost:50051"
-  assignment_grpc: "localhost:50052"
+services:
+  users:
+    host: "localhost"
+    grpc_port: 50051

@@ -1,0 +1,21 @@
+env: "local" #development production
+
+server:
+  http_port: 8080
+  host: "localhost"
+  timeout: 4s
+  idle_timeout: 30s
+
+services:
+  auth:
+    host: "localhost"
+    grpc_port: 50050
+  users:
+    host: "localhost"
+    grpc_port: 50051
+  tasks:
+    host: "localhost"
+    grpc_port: 50052
+  assignment:
+    host: "localhost"
+    grpc_port: 50053
