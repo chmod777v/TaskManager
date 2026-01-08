@@ -44,7 +44,7 @@ func NewRouter(authGrpcClient *auth.Client) *chi.Mux {
 	})
 	router.Route("/tasks", func(rout chi.Router) {
 		rout.Use(my_middleware.Auth(authGrpcClient, 1))
-		rout.Get("/my", handler.TasksMy)
+		rout.Get("/", handler.TasksMy)
 
 		rout.Group(func(r chi.Router) {
 			r.Use(my_middleware.Auth(authGrpcClient, 2))
@@ -62,7 +62,7 @@ func NewRouter(authGrpcClient *auth.Client) *chi.Mux {
 		r.Get("/user/{id}", handler.AssignVie)
 		r.Delete("/user/{id}", handler.AssignDelete)
 	})
-	router.Post("/auth", handler.Auth)
+	router.Post("/auth", handler.Auth(authGrpcClient))
 
 	return router
 }

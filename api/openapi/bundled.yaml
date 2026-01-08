@@ -18,6 +18,19 @@ tags:
     description: Вся бизнес-логика назначения и распределения
 paths:
   /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: Посмотреть свои задачи
+      responses:
+        '200':
+          description: Успешный ответ с поставленными задачами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskNew'
     post:
       tags:
         - Tasks

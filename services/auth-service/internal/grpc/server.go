@@ -11,18 +11,19 @@ type Server struct {
 }
 
 func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*authv1.ValidateResponse, error) {
-	slog.Debug("request", "Token", req.Token)
+	slog.Debug("Validate request", "Token", req.Token)
 	resp := &authv1.ValidateResponse{
-		Valid: false,
+		Valid: 1,
 		Error: "",
 	}
 	return resp, nil
 }
 
 func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateRequest) (*authv1.AuthenticateResponse, error) {
+	slog.Debug("Authenticate request", "Login", req.Login, "Key", req.Key)
 	resp := &authv1.AuthenticateResponse{
 		Success: true,
-		Token:   "123",
+		Token:   "12345",
 		Error:   "",
 	}
 	return resp, nil

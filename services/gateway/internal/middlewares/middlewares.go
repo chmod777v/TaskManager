@@ -35,27 +35,53 @@ func Logger(next http.Handler) http.Handler {
 	})
 }
 
-func Auth(authGrpcClient *auth.Client, level int8) func(next http.Handler) http.Handler { //level: 1-работник, 2-начальник и админ
+func Auth(authGrpcClient *auth.Client, level int32) func(next http.Handler) http.Handler { //level: 1-работник, 2-начальник и админ
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			valide, err := authGrpcClient.Validate(context.Background(), "123")
+			cookie, err := r.Cookie("auth_token")
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, map[string]string{
+					"Error": "Токен не найден",
+				})
+				return
+			}
+
+			ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+			defer cancel()
+			valide, err := authGrpcClient.Validate(ctx, cookie.Value)
+
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				render.JSON(w, r, map[string]string{
-					"Message": "Error",
+					"Error": "Server error",
 				})
-				slog.Error("AuthL1 error", "ERROR", err.Error())
+				slog.Error("AuthMiddleware error", "ERROR", err.Error())
 				return
 			}
-			if !valide { // ДОП ПРОВЕРКА С level!!!
+			if valide.Error != "" {
+				render.Status(r, http.StatusInternalServerError)
+				render.JSON(w, r, map[string]string{
+					"Error": "Server error",
+				})
+				slog.Error("AuthMiddleware grpc server error", "ERROR", valide.Error)
+				return
+			}
+
+			if valide.Valid == 0 {
 				render.Status(r, http.StatusUnauthorized)
 				render.JSON(w, r, map[string]string{
-					"Message": "User not valid",
+					"Error": "Ваши данные невалидны",
 				})
-				slog.Debug("User not valide")
 				return
 			}
-			slog.Debug("User valide")
+			if valide.Valid < level {
+				render.Status(r, http.StatusForbidden)
+				render.JSON(w, r, map[string]string{
+					"Error": "У вас нет доступа",
+				})
+				return
+			}
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)

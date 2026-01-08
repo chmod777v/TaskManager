@@ -1,5 +1,19 @@
 paths:
   /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: Посмотреть свои задачи
+      responses:
+        '200':
+          description: Успешный ответ с поставленными задачами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components/schemas.yaml#/TaskNew'
+
     post:
       tags:
       - Tasks
@@ -15,13 +29,13 @@ paths:
         '200':
           description: Успешный ответ с id созданной задачи
           content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    Id:
-                      type: integer
-                      example: 14
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                    example: 14
   /tasks/{id}:
     get:
       tags:

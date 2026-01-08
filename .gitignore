@@ -1,3 +1,4 @@
 gen/
-
+text
+Taskfile.yml
 *.exe

@@ -1,0 +1,12 @@
+env: "local" #development production
+
+server:
+  grpc_port: 50051
+  host: "localhost"
+
+database:
+  username: "postgres"
+  password: "1234"
+  host: "localhost"
+  port: 5432
+  db_name: "taskmanager"

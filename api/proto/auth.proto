@@ -15,7 +15,7 @@ message ValidateRequest {
     string token = 1;
 }
 message ValidateResponse {
-    bool valid = 1;
+    int32 valid = 1;    //0-невалиден 1-работник 2-начальник/админ
     string error = 2;
 }
 
@@ -26,5 +26,5 @@ message AuthenticateRequest {
 message AuthenticateResponse {
     bool success = 1;      // Успешно ли
     string token = 2;
-    string error = 3;      // Ошибка, если success=false
+    string error = 3;
 }

@@ -26,13 +26,24 @@ func NewClient(host string, port int) *Client {
 	}
 }
 
-func (c *Client) Validate(ctx context.Context, token string) (bool, error) {
+func (c *Client) Validate(ctx context.Context, token string) (*authv1.ValidateResponse, error) {
 	resp, err := c.Client.Validate(ctx, &authv1.ValidateRequest{
 		Token: token,
 	})
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	return resp.Valid, nil
+	return resp, nil
+}
+
+func (c *Client) Authenticate(ctx context.Context, login, key string) (*authv1.AuthenticateResponse, error) {
+	resp, err := c.Client.Authenticate(ctx, &authv1.AuthenticateRequest{
+		Login: login,
+		Key:   key,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
