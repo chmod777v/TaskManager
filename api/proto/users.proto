@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "gen/go/users;usersv1";
+
+
+service Users {
+    rpc Validate(ValidateRequest) returns (ValidateResponse);
+}
+
+
+message ValidateRequest {
+    string login = 1;
+    string key = 2;
+}
+message ValidateResponse {
+    int32 valid = 1;    //0-невалиден 1-работник 2-начальник/админ
+    string error = 2;
+}

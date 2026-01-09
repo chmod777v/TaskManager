@@ -1,11 +1,11 @@
 package main
 
 import (
-	"cmd/main.go/internal/config"
-	"cmd/main.go/internal/grpc/auth"
-	"cmd/main.go/internal/logger"
-	"cmd/main.go/internal/server"
 	"fmt"
+	"gateway/internal/config"
+	"gateway/internal/grpc/auth"
+	"gateway/internal/logger"
+	"gateway/internal/server"
 	"log/slog"
 	"net/http"
 )
@@ -33,7 +33,6 @@ func main() {
 		if err := serv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			serverErr <- err
 		}
-		close(serverErr)
 	}()
 	slog.Info("Server started", "LINK", addr)
 

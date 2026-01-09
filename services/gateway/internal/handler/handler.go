@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"cmd/main.go/internal/grpc/auth"
 	"context"
+	"gateway/internal/grpc/auth"
 	"log/slog"
 	"net/http"
 	"time"
@@ -28,7 +28,7 @@ func Auth(authGrpcClient *auth.Client) http.HandlerFunc {
 		if authReq.Login == "" || authReq.Key == "" {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, map[string]string{
-				"error": "Login and key are required",
+				"Error": "Login and key are required",
 			})
 			return
 		}

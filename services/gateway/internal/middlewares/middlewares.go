@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"cmd/main.go/internal/grpc/auth"
+	"gateway/internal/grpc/auth"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"

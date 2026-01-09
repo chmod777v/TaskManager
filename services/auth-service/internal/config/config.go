@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Env      string   `yaml:"env" env-default:"development"`
 	Server   Server   `yaml:"server"`
-	Services Services `yaml:"clients"`
+	Services Services `yaml:"services"`
 }
 
 type Server struct {
@@ -24,7 +24,7 @@ type Services struct {
 
 type ServiceConfig struct {
 	Host     string `yaml:"host" env-default:"localhost"`
-	GrpcPort int    `yaml:"grpc_port"`
+	GrpcPort int    `yaml:"grpc_port" env-default:"50051"`
 }
 
 func LoadConfig() *Config {

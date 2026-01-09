@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"cmd/main.go/internal/grpc/auth"
-	"cmd/main.go/internal/handler"
-	my_middleware "cmd/main.go/internal/middlewares"
+	"gateway/internal/grpc/auth"
+	"gateway/internal/handler"
+	my_middleware "gateway/internal/middlewares"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -67,7 +67,8 @@ func NewRouter(authGrpcClient *auth.Client) *chi.Mux {
 	return router
 }
 
-func Shutdown(server *http.Server, serverErr <-chan error) {
+func Shutdown(server *http.Server, serverErr chan error) {
+	defer close(serverErr)
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
