@@ -13,7 +13,6 @@ import (
 )
 
 func Logger(next http.Handler) http.Handler {
-	slog.Info("logger middleware enabled")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		entry := slog.With(
 			slog.String("method", r.Method),

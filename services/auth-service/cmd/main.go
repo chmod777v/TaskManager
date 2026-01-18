@@ -25,6 +25,13 @@ func main() {
 	logger.InitLogger(cfg.Env)
 	slog.Info("Cfg, Logger launched successfully")
 
+	//GRPC services
+	usersGrpcClient := users.NewClient(cfg.Services.Users.Host, cfg.Services.Users.GrpcPort)
+	if usersGrpcClient == nil {
+		return
+	}
+	defer usersGrpcClient.Close() //CLOSE
+
 	//Redis
 	redisAddr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
@@ -35,21 +42,31 @@ func main() {
 
 	ping, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
-		panic("Failed to connect to the redis: " + err.Error())
+		slog.Error("Failed to connect to the redis", "ERROR", err.Error())
+		return
 	}
 	slog.Info("Redis launched successfully", "Response to ping", ping, "Host", redisAddr)
+
+	defer func() { //CLOSE
+		if err := redisClient.Close(); err != nil {
+			slog.Error("Failed to close redis client", "ERROR", err.Error())
+		} else {
+			slog.Info("Redis client closed successfully")
+		}
+
+	}()
 
 	//Server
 	serverAddr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.GrpcPort)
 	listener, err := net.Listen("tcp", serverAddr)
 	if err != nil {
-		panic("Failed to listen: " + err.Error())
+		slog.Error("Failed to listen", "ERROR", err.Error())
+		return
 	}
 
 	server := grpc.NewServer()
 	reflection.Register(server) //сообщает методы
 
-	usersGrpcClient := users.NewClient(cfg.Services.Users.Host, cfg.Services.Users.GrpcPort)
 	authv1.RegisterAuthServer(server, &authgrpc.Server{
 		UsersGrpcClient: usersGrpcClient,
 		RedisClient:     redisClient,
@@ -62,10 +79,10 @@ func main() {
 		}
 	}()
 	slog.Info("Server started", "LINK", listener.Addr())
-	Shutdown(server, serverErr, redisClient)
+	Shutdown(server, serverErr)
 }
 
-func Shutdown(server *grpc.Server, serverErr chan error, redisClient *redis.Client) {
+func Shutdown(server *grpc.Server, serverErr chan error) {
 	defer close(serverErr)
 	//Waiting for a signal
 	interruptChan := make(chan os.Signal, 1)
@@ -80,8 +97,6 @@ func Shutdown(server *grpc.Server, serverErr chan error, redisClient *redis.Clie
 	}
 
 	//gRPC server shutdown
-	slog.Info("Stopping server...")
-
 	done := make(chan struct{})
 	go func() {
 		server.GracefulStop()
@@ -97,11 +112,4 @@ func Shutdown(server *grpc.Server, serverErr chan error, redisClient *redis.Clie
 		server.Stop() // Принудительная остановка
 		slog.Info("gRPC server stopped")
 	}
-
-	//Redis
-	err := redisClient.Close()
-	if err != nil {
-		slog.Error("Failed to close redis client", "ERROR", err.Error())
-	}
-	slog.Info("Redis client closed successfully")
 }

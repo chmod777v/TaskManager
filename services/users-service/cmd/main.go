@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -13,6 +14,7 @@ import (
 	usersgrpc "users-service/internal/grpc/server"
 	"users-service/internal/logger"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -22,16 +24,34 @@ func main() {
 	logger.InitLogger(cfg.Env)
 	slog.Info("Cfg, Logger launched successfully")
 
+	//DB
+	dbLink := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+		cfg.Db.Username, cfg.Db.Password, cfg.Db.Host, cfg.Db.Port, cfg.Db.DbName)
+	dbpool, err := pgxpool.New(context.Background(), dbLink)
+	if err != nil {
+		slog.Error("Failed to connect to the postgreSQL", "ERROR", err.Error())
+		return
+	}
+	slog.Info("Database connection successfully")
+
+	defer func() {
+		dbpool.Close()
+		dbpool = nil
+		slog.Info("Database connection closed successfully")
+	}()
+
+	//server
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.GrpcPort)
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic("Failed to listen:" + err.Error())
+		slog.Error("Failed to listen", "ERROR", err.Error())
+		return
 	}
 
 	server := grpc.NewServer()
 	reflection.Register(server) //сообщает методы
 
-	usersv1.RegisterUsersServer(server, &usersgrpc.Server{})
+	usersv1.RegisterUsersServer(server, &usersgrpc.Server{Dbpool: dbpool})
 
 	serverErr := make(chan error, 1)
 	go func() {
@@ -43,6 +63,7 @@ func main() {
 	Shutdown(server, serverErr)
 
 }
+
 func Shutdown(server *grpc.Server, serverErr chan error) {
 	defer close(serverErr)
 	//Waiting for a signal
@@ -58,8 +79,6 @@ func Shutdown(server *grpc.Server, serverErr chan error) {
 	}
 
 	//gRPC server shutdown
-	slog.Info("Stopping server...")
-
 	done := make(chan struct{})
 	go func() {
 		server.GracefulStop()

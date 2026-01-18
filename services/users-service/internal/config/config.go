@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	Env      string   `yaml:"env" env-default:"development"`
-	Server   Server   `yaml:"server"`
-	Database Database `yaml:"database"`
+	Env    string   `yaml:"env" env-default:"development"`
+	Server Server   `yaml:"server"`
+	Db     Database `yaml:"database"`
 }
 
 type Server struct {

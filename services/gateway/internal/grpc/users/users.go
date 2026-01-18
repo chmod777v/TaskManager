@@ -23,7 +23,7 @@ func NewClient(host string, port int) *Client {
 		slog.Error("Failed to conect to server:", "ERROR", err.Error())
 		return nil
 	}
-	slog.Info("Conect to users gRPC server:", "Host", addr)
+	slog.Info("Conect to users service:", "Host", addr)
 	return &Client{
 		conn:   conn,
 		Client: usersv1.NewUsersClient(conn),
@@ -53,13 +53,29 @@ func (c *Client) Close() {
 		}
 	}
 }
+
 func (c *Client) Validate(ctx context.Context, login, key string) (*usersv1.ValidateResponse, error) {
 	if c.Client == nil {
-		return nil, fmt.Errorf("gRPC client is not initialized")
+		return nil, fmt.Errorf("Users gRPC client is not initialized")
 	}
 	resp, err := c.Client.Validate(ctx, &usersv1.ValidateRequest{
 		Login: login,
 		Key:   key,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Client) Create(ctx context.Context, login, key string, accesslevel int32) (*usersv1.CreateResponse, error) {
+	if c.Client == nil {
+		return nil, fmt.Errorf("Users gRPC client is not initialized")
+	}
+	resp, err := c.Client.Create(ctx, &usersv1.CreateRequest{
+		Login:       login,
+		Key:         key,
+		Accesslevel: accesslevel,
 	})
 	if err != nil {
 		return nil, err

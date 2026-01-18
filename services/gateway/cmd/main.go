@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gateway/internal/config"
 	"gateway/internal/grpc/auth"
+	"gateway/internal/grpc/users"
 	"gateway/internal/logger"
 	"gateway/internal/server"
 	"log/slog"
@@ -16,10 +17,23 @@ func main() {
 	logger.InitLogger(cfg.Env)
 	slog.Info("Cfg, Logger launched successfully")
 
-	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HttpPort)
+	//Services
 	authGrpcClient := auth.NewClient(cfg.Services.Auth.Host, cfg.Services.Auth.GrpcPort)
-	router := server.NewRouter(authGrpcClient)
+	if authGrpcClient == nil {
+		return
+	}
+	defer authGrpcClient.Close()
 
+	usersGrpcClient := users.NewClient(cfg.Services.Users.Host, cfg.Services.Users.GrpcPort)
+	if usersGrpcClient == nil {
+		return
+	}
+	defer usersGrpcClient.Close()
+
+	//Server
+	router := server.NewRouter(authGrpcClient, usersGrpcClient)
+
+	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HttpPort)
 	serv := &http.Server{
 		Addr:         addr,
 		Handler:      router,

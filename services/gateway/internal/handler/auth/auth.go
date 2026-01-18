@@ -1,4 +1,4 @@
-package handler
+package auth_handler
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func Auth(authGrpcClient *auth.Client) http.HandlerFunc {
 		if authReq.Login == "" || authReq.Key == "" {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, map[string]string{
-				"Error": "Login and key are required",
+				"Error": "Login or key are required",
 			})
 			return
 		}
@@ -66,7 +66,7 @@ func Auth(authGrpcClient *auth.Client) http.HandlerFunc {
 			Name:     "auth_token",
 			Value:    authenticate.Token,
 			Path:     "/",
-			MaxAge:   86400,
+			MaxAge:   172800,
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
@@ -74,49 +74,4 @@ func Auth(authGrpcClient *auth.Client) http.HandlerFunc {
 		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 	}
-}
-
-//
-
-func UsersGetAll(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func UsersCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func UsersView(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func UsersDelete(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-
-//
-
-func TasksCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func TasksVie(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func TasksDelete(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func TasksUpdate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func TasksMy(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-
-//
-
-func AssignAppoint(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func AssignVie(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
-}
-func AssignDelete(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("some data"))
 }

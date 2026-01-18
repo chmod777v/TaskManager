@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log/slog"
 	authv1 "taskmanager/gen/go/auth"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Client struct {
+	conn   *grpc.ClientConn
 	Client authv1.AuthClient
 }
 
@@ -19,14 +21,42 @@ func NewClient(host string, port int) *Client {
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		slog.Error("Failed to conect to server:", "ERROR", err.Error())
+		return nil
 	}
-	slog.Info("Conect to gRPC server:", "Host", addr)
+	slog.Info("Conect to auth service:", "Host", addr)
 	return &Client{
+		conn:   conn,
 		Client: authv1.NewAuthClient(conn),
 	}
 }
+func (c *Client) Close() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	if c.conn == nil {
+		return
+	}
+	done := make(chan error, 1)
+	go func() {
+		done <- c.conn.Close()
+	}()
+
+	select {
+	case <-ctx.Done():
+		slog.Error("Failed to close auth-service connection", "ERROR", "timeout while closing connection: "+ctx.Err().Error())
+
+	case err := <-done:
+		if err != nil {
+			slog.Error("Failed to close auth-service connection", "ERROR", err)
+		} else {
+			slog.Info("Auth-service connection closed successfully")
+		}
+	}
+}
 func (c *Client) Validate(ctx context.Context, token string) (*authv1.ValidateResponse, error) {
+	if c.Client == nil {
+		return nil, fmt.Errorf("Auth gRPC client is not initialized")
+	}
 	resp, err := c.Client.Validate(ctx, &authv1.ValidateRequest{
 		Token: token,
 	})
@@ -38,6 +68,9 @@ func (c *Client) Validate(ctx context.Context, token string) (*authv1.ValidateRe
 }
 
 func (c *Client) Authenticate(ctx context.Context, login, key string) (*authv1.AuthenticateResponse, error) {
+	if c.Client == nil {
+		return nil, fmt.Errorf("Auth gRPC client is not initialized")
+	}
 	resp, err := c.Client.Authenticate(ctx, &authv1.AuthenticateRequest{
 		Login: login,
 		Key:   key,

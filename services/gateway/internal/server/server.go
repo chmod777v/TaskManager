@@ -10,7 +10,11 @@ import (
 	"time"
 
 	"gateway/internal/grpc/auth"
-	"gateway/internal/handler"
+	"gateway/internal/grpc/users"
+	asignment_handler "gateway/internal/handler/asignment"
+	auth_handler "gateway/internal/handler/auth"
+	tasks_handler "gateway/internal/handler/tasks"
+	users_handler "gateway/internal/handler/users"
 	my_middleware "gateway/internal/middlewares"
 
 	"github.com/go-chi/chi/v5"
@@ -18,7 +22,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewRouter(authGrpcClient *auth.Client) *chi.Mux {
+func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -37,32 +41,32 @@ func NewRouter(authGrpcClient *auth.Client) *chi.Mux {
 	router.Route("/users", func(r chi.Router) {
 		r.Use(my_middleware.Auth(authGrpcClient, 2))
 
-		r.Get("/", handler.UsersGetAll)
-		r.Post("/", handler.UsersCreate)
-		r.Get("/{id}", handler.UsersView)
-		r.Delete("/{id}", handler.UsersDelete)
+		r.Get("/", users_handler.UsersGetAll(usersGrpcClient))
+		r.Post("/", users_handler.UsersCreate(usersGrpcClient))
+		r.Get("/{id}", users_handler.UsersView(usersGrpcClient))
+		r.Delete("/{id}", users_handler.UsersDelete(usersGrpcClient))
 	})
 	router.Route("/tasks", func(rout chi.Router) {
 		rout.Use(my_middleware.Auth(authGrpcClient, 1))
-		rout.Get("/", handler.TasksMy)
+		rout.Get("/", tasks_handler.TasksMy)
 
 		rout.Group(func(r chi.Router) {
 			r.Use(my_middleware.Auth(authGrpcClient, 2))
 
-			r.Post("/", handler.TasksCreate)
-			r.Get("/{id}", handler.TasksVie)
-			r.Delete("/{id}", handler.TasksDelete)
-			r.Put("/{id}", handler.TasksUpdate)
+			r.Post("/", tasks_handler.TasksCreate)
+			r.Get("/{id}", tasks_handler.TasksVie)
+			r.Delete("/{id}", tasks_handler.TasksDelete)
+			r.Put("/{id}", tasks_handler.TasksUpdate)
 		})
 	})
 	router.Route("/assign", func(r chi.Router) {
 		r.Use(my_middleware.Auth(authGrpcClient, 2))
 
-		r.Post("/", handler.AssignAppoint)
-		r.Get("/user/{id}", handler.AssignVie)
-		r.Delete("/user/{id}", handler.AssignDelete)
+		r.Post("/", asignment_handler.AssignAppoint)
+		r.Get("/user/{id}", asignment_handler.AssignVie)
+		r.Delete("/user/{id}", asignment_handler.AssignDelete)
 	})
-	router.Post("/auth", handler.Auth(authGrpcClient))
+	router.Post("/auth", auth_handler.Auth(authGrpcClient))
 
 	return router
 }
@@ -80,8 +84,6 @@ func Shutdown(server *http.Server, serverErr chan error) {
 	}
 
 	//SHUTDOWN
-	slog.Info("Stopping server...")
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

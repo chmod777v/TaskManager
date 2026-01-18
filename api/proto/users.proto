@@ -7,6 +7,7 @@ option go_package = "gen/go/users;usersv1";
 
 service Users {
     rpc Validate(ValidateRequest) returns (ValidateResponse);
+    rpc Create(CreateRequest) returns (CreateResponse);
 }
 
 
@@ -16,5 +17,15 @@ message ValidateRequest {
 }
 message ValidateResponse {
     int32 valid = 1;    //0-невалиден 1-работник 2-начальник/админ
+    string error = 2;
+}
+
+message CreateRequest {
+    string login = 1;
+    string key = 2;
+    int32 accesslevel=3;
+}
+message CreateResponse {
+    int64 id = 1;
     string error = 2;
 }

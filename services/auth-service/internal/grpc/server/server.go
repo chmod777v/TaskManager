@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"log/slog"
 	authv1 "taskmanager/gen/go/auth"
 	"time"
@@ -20,9 +21,21 @@ type Server struct {
 
 func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*authv1.ValidateResponse, error) {
 	slog.Debug("Validate request", "Token", req.Token)
-	//Проверка токена из редис
+
+	redisResp, err := s.RedisClient.HGet(ctx, "session:"+req.Token, "accessLevel").Int()
+	if err != nil {
+		if errors.Is(err, redis.Nil) { //не валиден
+			resp := &authv1.ValidateResponse{
+				Valid: 0,
+				Error: "",
+			}
+			return resp, nil
+		}
+		return ErrorValidate("Redis validation err", err.Error()), nil
+	}
+
 	resp := &authv1.ValidateResponse{
-		Valid: 1, //0-невалиден 1-работник 2-начальник/админ
+		Valid: int32(redisResp), //0-невалиден 1-работник 2-начальник/админ
 		Error: "",
 	}
 	return resp, nil
@@ -41,13 +54,7 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 		return nil, err
 	}
 	if validate.Error != "" {
-		resp := &authv1.AuthenticateResponse{
-			Success: false,
-			Token:   "",
-			Error:   validate.Error,
-		}
-		slog.Error("Authenticate grpc server error", "ERROR", validate.Error)
-		return resp, nil
+		return ErrorAuthenticate("Users-service error", validate.Error), nil
 	}
 
 	if validate.Valid == 0 { // Не авторизован
@@ -62,40 +69,23 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	//Генерация токена
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
-		resp := &authv1.AuthenticateResponse{
-			Success: false,
-			Token:   "",
-			Error:   "Generate token error: " + err.Error(),
-		}
-		slog.Error("Generate token error", "ERROR", err.Error())
-		return resp, nil
+		return ErrorAuthenticate("Generate token error", err.Error()), nil
 	}
 	token := base64.RawURLEncoding.EncodeToString(tokenBytes)
 
-	//Создание новой редис сессии (содержит уровень доступа)
+	//Создание новой редис сессии (содержит уровень доступа и login)
 	key := "session:" + token
 	err = s.RedisClient.HSet(ctx, key,
+		"login", req.Login,
 		"accessLevel", validate.Valid,
 	).Err()
 
 	if err != nil {
-		resp := &authv1.AuthenticateResponse{
-			Success: false,
-			Token:   "",
-			Error:   "HSet redis error: " + err.Error(),
-		}
-		slog.Error("HSet redis error", "ERROR", err.Error())
-		return resp, nil
+		return ErrorAuthenticate("HSet redis error", err.Error()), nil
 	}
 	err = s.RedisClient.Expire(ctx, key, 48*time.Hour).Err()
 	if err != nil {
-		resp := &authv1.AuthenticateResponse{
-			Success: false,
-			Token:   "",
-			Error:   "Expire redis error: " + err.Error(),
-		}
-		slog.Error("Expire redis error", "ERROR", err.Error())
-		return resp, nil
+		return ErrorAuthenticate("Expire redis error", err.Error()), nil
 	}
 
 	resp := &authv1.AuthenticateResponse{
@@ -104,4 +94,23 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 		Error:   "",
 	}
 	return resp, nil
+}
+
+func ErrorAuthenticate(message, err string) *authv1.AuthenticateResponse {
+	resp := &authv1.AuthenticateResponse{
+		Success: false,
+		Token:   "",
+		Error:   message + ": " + err,
+	}
+	slog.Error(message, "ERROR", err)
+	return resp
+}
+
+func ErrorValidate(message, err string) *authv1.ValidateResponse {
+	resp := &authv1.ValidateResponse{
+		Valid: 0,
+		Error: message + ": " + err,
+	}
+	slog.Error(message, "ERROR", err)
+	return resp
 }
