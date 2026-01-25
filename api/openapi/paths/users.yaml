@@ -3,14 +3,14 @@ paths:
     get:
       tags:
       - Users
-      summary: Получение таблицы с пользователями (Id:Login)
+      summary: Просмотр своего профиля
       responses:
         '200':
-          description: Успешный ответ с таблицей
+          description: Успешный ответ с данными профиля
           content:
             application/json:
               schema:
-                $ref: '../components/schemas.yaml#/MapUser'
+                $ref: '../components/schemas.yaml#/User'
     post:
       tags:
       - Users
@@ -32,6 +32,18 @@ paths:
                   Id:
                     type: integer
                     example: 3
+  /users/all:
+    get:
+        tags:
+        - Users
+        summary: Получение таблицы с пользователями (Id:Login)
+        responses:
+          '200':
+            description: Успешный ответ с таблицей
+            content:
+              application/json:
+                schema:
+                  $ref: '../components/schemas.yaml#/MapUser'
             
   /users/{id}:
     get:

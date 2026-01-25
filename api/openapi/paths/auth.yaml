@@ -10,7 +10,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '../components/schemas.yaml#/User'
+              $ref: '../components/schemas.yaml#/UserForAuth'
       responses:
         '200':
           description: Успешная аутентификация

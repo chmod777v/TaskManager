@@ -54,27 +54,12 @@ func (c *Client) Close() {
 	}
 }
 
-func (c *Client) Validate(ctx context.Context, token string) (*authv1.ValidateResponse, error) {
+func (c *Client) GetLogin(ctx context.Context, token string) (*authv1.GetLoginResponse, error) {
 	if c.Client == nil {
-		return nil, fmt.Errorf("Auth gRPC client is not initialized")
+		return nil, fmt.Errorf("gRPC client is not initialized")
 	}
-	resp, err := c.Client.Validate(ctx, &authv1.ValidateRequest{
+	resp, err := c.Client.GetLogin(ctx, &authv1.GetLoginRequest{
 		Token: token,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func (c *Client) Authenticate(ctx context.Context, login, key string) (*authv1.AuthenticateResponse, error) {
-	if c.Client == nil {
-		return nil, fmt.Errorf("Auth gRPC client is not initialized")
-	}
-	resp, err := c.Client.Authenticate(ctx, &authv1.AuthenticateRequest{
-		Login: login,
-		Key:   key,
 	})
 	if err != nil {
 		return nil, err

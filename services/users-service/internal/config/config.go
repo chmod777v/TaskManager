@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Env    string   `yaml:"env" env-default:"development"`
-	Server Server   `yaml:"server"`
-	Db     Database `yaml:"database"`
+	Env      string   `yaml:"env" env-default:"development"`
+	Server   Server   `yaml:"server"`
+	Db       Database `yaml:"database"`
+	Services Services `yaml:"services"`
 }
 
 type Server struct {
@@ -24,6 +25,15 @@ type Database struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	DbName   string `yaml:"db_name"`
+}
+
+type Services struct {
+	Auth ServiceConfig `yaml:"auth"`
+}
+
+type ServiceConfig struct {
+	Host     string `yaml:"host" env-default:"localhost"`
+	GrpcPort int    `yaml:"grpc_port"`
 }
 
 func LoadConfig() *Config {

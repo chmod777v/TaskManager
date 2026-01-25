@@ -11,12 +11,14 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
 	authv1.UnimplementedAuthServer
-	UsersGrpcClient *users.Client
 	RedisClient     *redis.Client
+	UsersGrpcClient *users.Client
 }
 
 func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*authv1.ValidateResponse, error) {
@@ -31,7 +33,7 @@ func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*au
 			}
 			return resp, nil
 		}
-		return ErrorValidate("Redis validation err", err.Error()), nil
+		return nil, status.Errorf(codes.Internal, "Redis validation err: %v", err)
 	}
 
 	resp := &authv1.ValidateResponse{
@@ -51,10 +53,7 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 
 	if err != nil {
 		slog.Error("Authenticate error", "ERROR", err.Error())
-		return nil, err
-	}
-	if validate.Error != "" {
-		return ErrorAuthenticate("Users-service error", validate.Error), nil
+		return nil, status.Errorf(codes.Internal, "Authenticate error: %v", err)
 	}
 
 	if validate.Valid == 0 { // Не авторизован
@@ -69,7 +68,7 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	//Генерация токена
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
-		return ErrorAuthenticate("Generate token error", err.Error()), nil
+		return nil, status.Errorf(codes.Internal, "Generate token error: %v", err)
 	}
 	token := base64.RawURLEncoding.EncodeToString(tokenBytes)
 
@@ -81,11 +80,11 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	).Err()
 
 	if err != nil {
-		return ErrorAuthenticate("HSet redis error", err.Error()), nil
+		return nil, status.Errorf(codes.Internal, "HSet redis error: %v", err)
 	}
 	err = s.RedisClient.Expire(ctx, key, 48*time.Hour).Err()
 	if err != nil {
-		return ErrorAuthenticate("Expire redis error", err.Error()), nil
+		return nil, status.Errorf(codes.Internal, "Expire redis error: %v", err)
 	}
 
 	resp := &authv1.AuthenticateResponse{
@@ -96,21 +95,18 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	return resp, nil
 }
 
-func ErrorAuthenticate(message, err string) *authv1.AuthenticateResponse {
-	resp := &authv1.AuthenticateResponse{
-		Success: false,
-		Token:   "",
-		Error:   message + ": " + err,
-	}
-	slog.Error(message, "ERROR", err)
-	return resp
-}
+func (s *Server) GetLogin(ctx context.Context, req *authv1.GetLoginRequest) (*authv1.GetLoginResponse, error) {
+	slog.Debug("GetLogin request", "Token", req.Token)
 
-func ErrorValidate(message, err string) *authv1.ValidateResponse {
-	resp := &authv1.ValidateResponse{
-		Valid: 0,
-		Error: message + ": " + err,
+	redisResp, err := s.RedisClient.HGet(ctx, "session:"+req.Token, "login").Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) { //не валиден
+			return nil, nil
+		}
+		return nil, status.Errorf(codes.Internal, "GetLogin err, HGet redis error: %v", err)
 	}
-	slog.Error(message, "ERROR", err)
-	return resp
+	resp := &authv1.GetLoginResponse{
+		Login: redisResp,
+	}
+	return resp, nil
 }

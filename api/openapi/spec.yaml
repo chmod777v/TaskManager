@@ -23,6 +23,8 @@ tags:
 paths:
   /tasks:
     $ref: './paths/tasks.yaml#/paths/~1tasks'
+  /tasks/all:
+    $ref: './paths/tasks.yaml#/paths/~1tasks~1all'
   /tasks/{id}:
     $ref: './paths/tasks.yaml#/paths/~1tasks~1{id}'
     
@@ -31,6 +33,8 @@ paths:
 
   /users:
     $ref: './paths/users.yaml#/paths/~1users'
+  /users/all:
+    $ref: './paths/users.yaml#/paths/~1users~1all'
   /users/{id}:
     $ref: './paths/users.yaml#/paths/~1users~1{id}'
 

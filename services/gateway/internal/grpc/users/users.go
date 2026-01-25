@@ -82,3 +82,16 @@ func (c *Client) Create(ctx context.Context, login, key string, accesslevel int3
 	}
 	return resp, nil
 }
+
+func (c *Client) UserInformation(ctx context.Context, token string) (*usersv1.UserInformationResponse, error) {
+	if c.Client == nil {
+		return nil, fmt.Errorf("Users gRPC client is not initialized")
+	}
+	resp, err := c.Client.UserInformation(ctx, &usersv1.UserInformationRequest{
+		Token: token,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}

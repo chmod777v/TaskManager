@@ -11,6 +11,7 @@ import (
 	usersv1 "taskmanager/gen/go/users"
 	"time"
 	"users-service/internal/config"
+	"users-service/internal/grpc/auth"
 	usersgrpc "users-service/internal/grpc/server"
 	"users-service/internal/logger"
 
@@ -23,6 +24,13 @@ func main() {
 	cfg := config.LoadConfig()
 	logger.InitLogger(cfg.Env)
 	slog.Info("Cfg, Logger launched successfully")
+
+	//GRPC services
+	authGrpcClient := auth.NewClient(cfg.Services.Auth.Host, cfg.Services.Auth.GrpcPort)
+	if authGrpcClient == nil {
+		return
+	}
+	defer authGrpcClient.Close()
 
 	//DB
 	dbLink := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
@@ -51,7 +59,7 @@ func main() {
 	server := grpc.NewServer()
 	reflection.Register(server) //сообщает методы
 
-	usersv1.RegisterUsersServer(server, &usersgrpc.Server{Dbpool: dbpool})
+	usersv1.RegisterUsersServer(server, &usersgrpc.Server{Dbpool: dbpool, AuthGrpcClient: authGrpcClient})
 
 	serverErr := make(chan error, 1)
 	go func() {

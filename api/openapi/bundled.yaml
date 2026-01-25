@@ -52,6 +52,20 @@ paths:
                   Id:
                     type: integer
                     example: 14
+  /tasks/all:
+    get:
+      tags:
+        - Tasks
+      summary: Получение таблицы со всеми задачами (Id:Header)
+      responses:
+        '200':
+          description: Успешный ответ с поставленными задачами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MapTasks'
   /tasks/{id}:
     get:
       tags:
@@ -99,7 +113,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserForAuth'
       responses:
         '200':
           description: Успешная аутентификация
@@ -113,14 +127,14 @@ paths:
     get:
       tags:
         - Users
-      summary: Получение таблицы с пользователями (Id:Login)
+      summary: Просмотр своего профиля
       responses:
         '200':
-          description: Успешный ответ с таблицей
+          description: Успешный ответ с данными профиля
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MapUser'
+                $ref: '#/components/schemas/User'
     post:
       tags:
         - Users
@@ -142,6 +156,18 @@ paths:
                   Id:
                     type: integer
                     example: 3
+  /users/all:
+    get:
+      tags:
+        - Users
+      summary: Получение таблицы с пользователями (Id:Login)
+      responses:
+        '200':
+          description: Успешный ответ с таблицей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapUser'
   /users/{id}:
     get:
       tags:
@@ -228,6 +254,15 @@ components:
           description: Подробное описание задачи (ТЗ)
           type: string
           example: Разработать сервис для авторизации. Срок 3 недели. Использовать postgres...
+    MapTasks:
+      type: object
+      additionalProperties:
+        type: string
+      description: Таблица с задачами Id:Header
+      example:
+        '1': Дописать jwt авторизацию
+        '2': Добавить middleware для проверки ролей
+        '3': Реализовать кеширование ответа
     TaskDetail:
       type: object
       properties:
@@ -252,6 +287,15 @@ components:
             - 1
             - 23
             - 5
+    UserForAuth:
+      type: object
+      properties:
+        Login:
+          type: string
+          example: Inna
+        Key:
+          type: string
+          example: nx9182!mx198MgfKL0S=AsL3
     User:
       type: object
       properties:
@@ -261,6 +305,9 @@ components:
         Key:
           type: string
           example: nx9182!mx198MgfKL0S=AsL3
+        AccessLevel:
+          type: integer
+          example: 1
     MapUser:
       type: object
       additionalProperties:
@@ -304,7 +351,7 @@ components:
       required: true
       schema:
         type: integer
-        example: 4
+        example: 3
         minimum: 1
     UserIdRequest:
       name: id

@@ -10,7 +10,21 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
     
+  postgress:
+    container_name: "postgres"
+    image: postgres
+    restart: unless-stopped
+    ports:
+    - 5432:5432
+    volumes:
+    - postgres_data:/var/lib/postgresql/18/data
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: postgres
+      POSTGRES_DB: TaskManager
+
 
 
 volumes:
   redis_data:
+  postgres_data:

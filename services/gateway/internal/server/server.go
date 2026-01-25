@@ -38,13 +38,17 @@ func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client) *chi.
 	router.Use(middleware.RealIP)
 	router.Use(my_middleware.Logger)
 
-	router.Route("/users", func(r chi.Router) {
-		r.Use(my_middleware.Auth(authGrpcClient, 2))
+	router.Route("/users", func(rout chi.Router) {
+		rout.Get("/", users_handler.UsersMy(usersGrpcClient))
 
-		r.Get("/", users_handler.UsersGetAll(usersGrpcClient))
-		r.Post("/", users_handler.UsersCreate(usersGrpcClient))
-		r.Get("/{id}", users_handler.UsersView(usersGrpcClient))
-		r.Delete("/{id}", users_handler.UsersDelete(usersGrpcClient))
+		rout.Group(func(r chi.Router) {
+			r.Use(my_middleware.Auth(authGrpcClient, 2))
+
+			r.Post("/", users_handler.UsersCreate(usersGrpcClient))
+			r.Get("/all", users_handler.UsersGetAll(usersGrpcClient))
+			r.Get("/{id}", users_handler.UsersView(usersGrpcClient))
+			r.Delete("/{id}", users_handler.UsersDelete(usersGrpcClient))
+		})
 	})
 	router.Route("/tasks", func(rout chi.Router) {
 		rout.Use(my_middleware.Auth(authGrpcClient, 1))
@@ -54,6 +58,7 @@ func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client) *chi.
 			r.Use(my_middleware.Auth(authGrpcClient, 2))
 
 			r.Post("/", tasks_handler.TasksCreate)
+			r.Get("/all", tasks_handler.TasksGetAll)
 			r.Get("/{id}", tasks_handler.TasksVie)
 			r.Delete("/{id}", tasks_handler.TasksDelete)
 			r.Put("/{id}", tasks_handler.TasksUpdate)

@@ -32,6 +32,16 @@ TaskNew:
       type: string
       example: Разработать сервис для авторизации. Срок 3 недели. Использовать postgres...
 
+MapTasks:
+  type: object
+  additionalProperties:
+    type: string
+  description: Таблица с задачами Id:Header
+  example:
+    1: "Дописать jwt авторизацию"
+    2: "Добавить middleware для проверки ролей"
+    3: "Реализовать кеширование ответа"
+    
 User:
   type: object
   properties:
@@ -41,7 +51,20 @@ User:
     Key:
       type: string
       example: nx9182!mx198MgfKL0S=AsL3
+    AccessLevel:
+      type: integer
+      example: 1
       
+UserForAuth:
+  type: object
+  properties:
+    Login:
+      type: string
+      example: Inna
+    Key:
+      type: string
+      example: nx9182!mx198MgfKL0S=AsL3
+
 MapUser:
   type: object
   additionalProperties:

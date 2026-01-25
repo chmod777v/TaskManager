@@ -15,7 +15,7 @@ type authRequest struct {
 	Key   string `json:"Key"`
 }
 
-func Auth(authGrpcClient *auth.Client) http.HandlerFunc {
+func Auth(authGrpcClient *auth.Client) http.HandlerFunc { //Аутентификация по логину и ключу
 	return func(w http.ResponseWriter, r *http.Request) {
 		var authReq authRequest
 		if err := render.DecodeJSON(r.Body, &authReq); err != nil {

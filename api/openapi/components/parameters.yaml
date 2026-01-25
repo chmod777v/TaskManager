@@ -5,7 +5,7 @@ TaskIdRequest:
   required: true  
   schema:
     type: integer
-    example: 4
+    example: 3
     minimum: 1
 
 UserIdRequest: 
