@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"gateway/internal/grpc/auth"
+	"gateway/internal/grpc/tasks"
 	"gateway/internal/grpc/users"
 	asignment_handler "gateway/internal/handler/asignment"
 	auth_handler "gateway/internal/handler/auth"
@@ -22,7 +23,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client) *chi.Mux {
+func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client, tasksGrpcClient *tasks.Client) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -51,8 +52,7 @@ func NewRouter(authGrpcClient *auth.Client, usersGrpcClient *users.Client) *chi.
 		})
 	})
 	router.Route("/tasks", func(rout chi.Router) {
-		rout.Use(my_middleware.Auth(authGrpcClient, 1))
-		rout.Get("/", tasks_handler.TasksMy)
+		rout.Get("/", tasks_handler.TasksMy(tasksGrpcClient))
 
 		rout.Group(func(r chi.Router) {
 			r.Use(my_middleware.Auth(authGrpcClient, 2))

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package tasks;
+
+option go_package = "gen/go/tasks;tasksv1";
+
+service Tasks {
+    rpc TasksMy(TasksMyRequest) returns (TasksMyResponse);
+}
+
+message TasksMyRequest{
+    string token = 1;
+}
+message TasksMyResponse{
+    repeated Task tasks = 1;
+  
+    message Task {
+        string Header = 1;
+        string Task = 2;
+    }
+}

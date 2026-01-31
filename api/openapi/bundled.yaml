@@ -28,9 +28,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TaskNew'
+                type: object
+                properties:
+                  Tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TaskNew'
     post:
       tags:
         - Tasks
@@ -240,7 +243,7 @@ components:
     CookieAuth:
       type: apiKey
       in: cookie
-      name: session_token
+      name: auth_token
       description: Токен аутентификации в cookie. Получать токен через POST /auth/login!
   schemas:
     TaskNew:

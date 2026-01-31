@@ -23,29 +23,24 @@ type Server struct {
 func (s *Server) Validate(ctx context.Context, req *usersv1.ValidateRequest) (*usersv1.ValidateResponse, error) {
 	slog.Debug("Validate request", "Login", req.Login, "Key", req.Key)
 
-	var accesslevel int
+	var id, accesslevel int
 	err := s.Dbpool.QueryRow(ctx,
-		"SELECT accesslevel FROM users WHERE login=$1 and key=$2",
-		req.Login, req.Key).Scan(&accesslevel)
+		"SELECT id,accesslevel FROM users WHERE login=$1 and key=$2",
+		req.Login, req.Key).Scan(&id, &accesslevel)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			resp := &usersv1.ValidateResponse{
 				Valid: 0,
-				Error: "",
 			}
 			return resp, nil
 		}
-		resp := &usersv1.ValidateResponse{
-			Valid: 0,
-			Error: "Validate err, error sending query to database: " + err.Error(),
-		}
 		slog.Error("Validate err, error sending query to database", "ERROR", err.Error())
-		return resp, nil
+		return nil, status.Errorf(codes.Internal, "Validate err, error sending query to database: %v", err)
 	}
 
 	resp := &usersv1.ValidateResponse{
+		Id:    int64(id),
 		Valid: int32(accesslevel),
-		Error: "",
 	}
 	return resp, nil
 }
@@ -58,17 +53,12 @@ func (s *Server) Create(ctx context.Context, req *usersv1.CreateRequest) (*users
 		"INSERT INTO users (login, key, accesslevel) VALUES ($1, $2, $3) RETURNING id",
 		req.Login, req.Key, req.Accesslevel).Scan(&id)
 	if err != nil {
-		resp := &usersv1.CreateResponse{
-			Id:    0,
-			Error: "Create err, error sending query to database: " + err.Error(),
-		}
 		slog.Error("Create err, error sending query to database", "ERROR", err.Error())
-		return resp, nil
+		return nil, status.Errorf(codes.Internal, "Create err, error sending query to database: %v", err)
 	}
 
 	resp := &usersv1.CreateResponse{
-		Id:    int64(id),
-		Error: "",
+		Id: int64(id),
 	}
 	return resp, nil
 }
@@ -79,21 +69,21 @@ func (s *Server) UserInformation(ctx context.Context, req *usersv1.UserInformati
 	//Запрос к сервису Auth
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	getLogin, err := s.AuthGrpcClient.GetLogin(ctx, req.Token)
+	getId, err := s.AuthGrpcClient.GetId(ctx, req.Token)
 	if err != nil {
 		slog.Error("UserInformation error", "ERROR", err.Error())
 		return nil, err
 	}
-	if getLogin.Login == "" { //не валиден
+	if getId.Id == 0 { //не валиден
 		return nil, nil
 	}
 
 	//Запроc в БД
-	var key string
+	var key, login string
 	var accesslevel int32
 	err = s.Dbpool.QueryRow(ctx,
-		"SELECT key, accesslevel FROM users WHERE login=$1",
-		getLogin.Login).Scan(&key, &accesslevel)
+		"SELECT login, key, accesslevel FROM users WHERE id=$1",
+		getId.Id).Scan(&login, &key, &accesslevel)
 	if err != nil {
 		slog.Error("UserInformation error", "ERROR", err.Error())
 		return nil, status.Errorf(codes.Internal, "UserInformation err, error sending query to database: %v", err)
@@ -101,7 +91,7 @@ func (s *Server) UserInformation(ctx context.Context, req *usersv1.UserInformati
 
 	//
 	resp := &usersv1.UserInformationResponse{
-		Login:       getLogin.Login,
+		Login:       login,
 		Key:         key,
 		Accesslevel: accesslevel,
 	}

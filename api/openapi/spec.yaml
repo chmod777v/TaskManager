@@ -48,5 +48,5 @@ components:
     CookieAuth:
       type: apiKey
       in: cookie
-      name: session_token
+      name: auth_token
       description: Токен аутентификации в cookie. Получать токен через POST /auth/login!

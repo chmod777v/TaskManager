@@ -8,12 +8,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	usersv1 "taskmanager/gen/go/users"
+	tasksv1 "taskmanager/gen/go/tasks"
+	"tasks-service/internal/config"
+	"tasks-service/internal/grpc/auth"
+	tasksgrpc "tasks-service/internal/grpc/server"
+	"tasks-service/internal/logger"
 	"time"
-	"users-service/internal/config"
-	"users-service/internal/grpc/auth"
-	usersgrpc "users-service/internal/grpc/server"
-	"users-service/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
@@ -48,9 +48,9 @@ func main() {
 		slog.Info("Database connection closed successfully")
 	}()
 
-	//server
-	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.GrpcPort)
-	listener, err := net.Listen("tcp", addr)
+	//Server
+	serverAddr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.GrpcPort)
+	listener, err := net.Listen("tcp", serverAddr)
 	if err != nil {
 		slog.Error("Failed to listen", "ERROR", err.Error())
 		return
@@ -59,7 +59,7 @@ func main() {
 	server := grpc.NewServer()
 	reflection.Register(server) //сообщает методы
 
-	usersv1.RegisterUsersServer(server, &usersgrpc.Server{
+	tasksv1.RegisterTasksServer(server, &tasksgrpc.Server{
 		Dbpool:         dbpool,
 		AuthGrpcClient: authGrpcClient,
 	})
@@ -72,7 +72,6 @@ func main() {
 	}()
 	slog.Info("Server started", "LINK", listener.Addr())
 	Shutdown(server, serverErr)
-
 }
 
 func Shutdown(server *grpc.Server, serverErr chan error) {

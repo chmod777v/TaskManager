@@ -55,15 +55,7 @@ func Auth(authGrpcClient *auth.Client, level int32) func(next http.Handler) http
 				render.JSON(w, r, map[string]string{
 					"Error": "Server error",
 				})
-				slog.Error("AuthMiddleware error", "ERROR", err.Error())
-				return
-			}
-			if valide.Error != "" {
-				render.Status(r, http.StatusInternalServerError)
-				render.JSON(w, r, map[string]string{
-					"Error": "Server error",
-				})
-				slog.Error("AuthMiddleware grpc server error", "ERROR", valide.Error)
+				slog.Error("Auth Middleware error", "ERROR", err.Error())
 				return
 			}
 

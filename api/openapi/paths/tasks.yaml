@@ -10,9 +10,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '../components/schemas.yaml#/TaskNew'
+                type: object
+                properties:
+                  Tasks:
+                    type: array
+                    items:
+                      $ref: '../components/schemas.yaml#/TaskNew'
 
     post:
       tags:

@@ -1,10 +1,10 @@
-package auth
+package tasks
 
 import (
 	"context"
 	"fmt"
 	"log/slog"
-	authv1 "taskmanager/gen/go/auth"
+	tasksv1 "taskmanager/gen/go/tasks"
 	"time"
 
 	"google.golang.org/grpc"
@@ -13,20 +13,20 @@ import (
 
 type Client struct {
 	conn   *grpc.ClientConn
-	Client authv1.AuthClient
+	Client tasksv1.TasksClient
 }
 
 func NewClient(host string, port int) *Client {
 	addr := fmt.Sprintf("%s:%d", host, port)
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		slog.Error("Failed to conect to server:", "ERROR", err.Error())
+		slog.Error("Failed to conect to tasks service:", "ERROR", err.Error())
 		return nil
 	}
-	slog.Info("Conect to auth service:", "Host", addr)
+	slog.Info("Conect to tasks service:", "Host", addr)
 	return &Client{
 		conn:   conn,
-		Client: authv1.NewAuthClient(conn),
+		Client: tasksv1.NewTasksClient(conn),
 	}
 }
 func (c *Client) Close() {
@@ -43,22 +43,21 @@ func (c *Client) Close() {
 
 	select {
 	case <-ctx.Done():
-		slog.Error("Failed to close auth-service connection", "ERROR", "timeout while closing connection: "+ctx.Err().Error())
+		slog.Error("Failed to close tasks-service connection", "ERROR", "timeout while closing connection: "+ctx.Err().Error())
 
 	case err := <-done:
 		if err != nil {
-			slog.Error("Failed to close auth-service connection", "ERROR", err)
+			slog.Error("Failed to close tasks-service connection", "ERROR", err)
 		} else {
-			slog.Info("Auth-service connection closed successfully")
+			slog.Info("Tasks-service connection closed successfully")
 		}
 	}
 }
-
-func (c *Client) GetId(ctx context.Context, token string) (*authv1.GetIdResponse, error) {
+func (c *Client) TasksMy(ctx context.Context, token string) (*tasksv1.TasksMyResponse, error) {
 	if c.Client == nil {
-		return nil, fmt.Errorf("gRPC client is not initialized")
+		return nil, fmt.Errorf("Tasks gRPC client is not initialized")
 	}
-	resp, err := c.Client.GetId(ctx, &authv1.GetIdRequest{
+	resp, err := c.Client.TasksMy(ctx, &tasksv1.TasksMyRequest{
 		Token: token,
 	})
 	if err != nil {

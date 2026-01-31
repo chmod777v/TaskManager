@@ -93,14 +93,6 @@ func UsersCreate(usersGrpcClient *users.Client) http.HandlerFunc { //Созда�
 			slog.Error("UsersCreate error", "ERROR", err.Error())
 			return
 		}
-		if create.Error != "" {
-			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, map[string]string{
-				"Error": "Server error",
-			})
-			slog.Error("Users grpc server error", "ERROR", create.Error)
-			return
-		}
 
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, map[string]int64{

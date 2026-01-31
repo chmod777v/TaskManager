@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gateway/internal/config"
 	"gateway/internal/grpc/auth"
+	"gateway/internal/grpc/tasks"
 	"gateway/internal/grpc/users"
 	"gateway/internal/logger"
 	"gateway/internal/server"
@@ -30,8 +31,14 @@ func main() {
 	}
 	defer usersGrpcClient.Close()
 
+	tasksGrpcClient := tasks.NewClient(cfg.Services.Tasks.Host, cfg.Services.Tasks.GrpcPort)
+	if tasksGrpcClient == nil {
+		return
+	}
+	defer tasksGrpcClient.Close()
+
 	//Server
-	router := server.NewRouter(authGrpcClient, usersGrpcClient)
+	router := server.NewRouter(authGrpcClient, usersGrpcClient, tasksGrpcClient)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.HttpPort)
 	serv := &http.Server{

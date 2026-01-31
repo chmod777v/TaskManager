@@ -42,15 +42,7 @@ func Auth(authGrpcClient *auth.Client) http.HandlerFunc { //Аутентифик
 			render.JSON(w, r, map[string]string{
 				"Error": "Server error",
 			})
-			slog.Error("Auth error", "ERROR", err.Error())
-			return
-		}
-		if authenticate.Error != "" {
-			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, map[string]string{
-				"Error": "Server error",
-			})
-			slog.Error("Auth grpc server error", "ERROR", authenticate.Error)
+			slog.Error("Auth Handler error", "ERROR", err.Error())
 			return
 		}
 

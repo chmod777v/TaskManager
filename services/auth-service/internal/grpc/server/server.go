@@ -29,7 +29,6 @@ func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*au
 		if errors.Is(err, redis.Nil) { //не валиден
 			resp := &authv1.ValidateResponse{
 				Valid: 0,
-				Error: "",
 			}
 			return resp, nil
 		}
@@ -38,7 +37,6 @@ func (s *Server) Validate(ctx context.Context, req *authv1.ValidateRequest) (*au
 
 	resp := &authv1.ValidateResponse{
 		Valid: int32(redisResp), //0-невалиден 1-работник 2-начальник/админ
-		Error: "",
 	}
 	return resp, nil
 }
@@ -60,7 +58,6 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 		resp := &authv1.AuthenticateResponse{
 			Success: false,
 			Token:   "",
-			Error:   "",
 		}
 		return resp, nil
 	}
@@ -75,7 +72,7 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	//Создание новой редис сессии (содержит уровень доступа и login)
 	key := "session:" + token
 	err = s.RedisClient.HSet(ctx, key,
-		"login", req.Login,
+		"id", validate.Id,
 		"accessLevel", validate.Valid,
 	).Err()
 
@@ -90,23 +87,22 @@ func (s *Server) Authenticate(ctx context.Context, req *authv1.AuthenticateReque
 	resp := &authv1.AuthenticateResponse{
 		Success: true,
 		Token:   token,
-		Error:   "",
 	}
 	return resp, nil
 }
 
-func (s *Server) GetLogin(ctx context.Context, req *authv1.GetLoginRequest) (*authv1.GetLoginResponse, error) {
-	slog.Debug("GetLogin request", "Token", req.Token)
+func (s *Server) GetId(ctx context.Context, req *authv1.GetIdRequest) (*authv1.GetIdResponse, error) {
+	slog.Debug("GetId request", "Token", req.Token)
 
-	redisResp, err := s.RedisClient.HGet(ctx, "session:"+req.Token, "login").Result()
+	redisResp, err := s.RedisClient.HGet(ctx, "session:"+req.Token, "id").Int()
 	if err != nil {
 		if errors.Is(err, redis.Nil) { //не валиден
 			return nil, nil
 		}
-		return nil, status.Errorf(codes.Internal, "GetLogin err, HGet redis error: %v", err)
+		return nil, status.Errorf(codes.Internal, "GetId err, HGet redis error: %v", err)
 	}
-	resp := &authv1.GetLoginResponse{
-		Login: redisResp,
+	resp := &authv1.GetIdResponse{
+		Id: int64(redisResp),
 	}
 	return resp, nil
 }

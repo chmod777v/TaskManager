@@ -20,7 +20,7 @@ func NewClient(host string, port int) *Client {
 	addr := fmt.Sprintf("%s:%d", host, port)
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		slog.Error("Failed to conect to server:", "ERROR", err.Error())
+		slog.Error("Failed to conect to auth service:", "ERROR", err.Error())
 		return nil
 	}
 	slog.Info("Conect to auth service:", "Host", addr)
